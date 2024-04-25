@@ -6,37 +6,42 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
 import com.example.perfil.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    public var UbicationButtomTest: Int = 0
     private var lat: Double = 0.0
     private var lon: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         setContentView(binding.root)
         updateUI()
 
-        /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
-            if(item.itemId == R.id.profile_mostrar) {
-          }
-         }*/
 
-        binding.profileMostrar.setOnClickListener {
-            binding.profileMostrar.text = "Lat: $lat, Long: $lon"
-            //startActivity(Intent(this, EditActivity::class.java))
-        }
+            binding.profileMostrar.setOnClickListener {
+                if (UbicationButtomTest==0) {
+                    binding.profileMostrar.text = "Lat: $lat, Lon: $lon"
+                    UbicationButtomTest=1
+                }
+                else if (UbicationButtomTest==1) {
+                    binding.profileMostrar.text = "Mostrar mapa"
+                    UbicationButtomTest=0
+                }
+            }
     }
 
     private fun updateUI(
         name: String = "Curso UV",
         correo: String = "frivera@uv.com.mx",
         web: String = "https://miuv.com/frivera",
-        phone: String = "+52 2291406365"
-    ) {
+        phone: String = "+52 2291406365")
+    {
         binding.profileTvNombre.text = name
         binding.profileTvCorreo.text = correo
         binding.profileTvWeb.text = web
@@ -46,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+        menuInflater.inflate(R.menu.menu_main,menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -82,19 +87,3 @@ class MainActivity : AppCompatActivity() {
             }
         }
 }
-    /*
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode== RESULT_OK){
-            if(requestCode==985){
-                val name = data?.getStringExtra(getString("k_name"))
-                val correo = data?.getStringExtra(getString("k_email"))
-                val web = data?.getStringExtra(getString("k_web"))
-                val phone = data?.getStringExtra(getString("k_phone"))
-                lat = data?.getStringExtra(getString("k_lat"))?.toDouble() ?:0.0
-                lon = data?.getStringExtra(getString("k_lon"))?.toDouble() ?:0.0
-                updateUI(name!!,correo!!,web!!,phone!!)
-            }
-        }
-    }
-    */
