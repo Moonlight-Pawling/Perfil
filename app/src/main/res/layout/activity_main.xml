@@ -118,7 +118,8 @@
             android:drawableEnd="@drawable/icon_map"
             />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/profileLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/text_habilitar_ubicacion"

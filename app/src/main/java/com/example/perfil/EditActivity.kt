@@ -2,6 +2,7 @@ package com.example.perfil
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
@@ -33,7 +34,9 @@ class EditActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if(item.itemId == R.id.action_save){
-            sendData()
+            if (DataValidation()==true) {
+                sendData()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -49,4 +52,96 @@ class EditActivity : AppCompatActivity() {
         setResult(RESULT_OK,intent)
         finish()
     }
+
+    private fun DataValidation(): Boolean{
+        var ValidationBooleanStatus = true
+
+        //Name Validation
+        var nombre = binding.etnombre.text.toString().trim()
+
+        if (nombre.length<3 && nombre.isNotEmpty()){
+            binding.boxNombre.run {
+                error = "El nombre debe contener al menos 3 caracteres"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        }
+        else if (nombre.isEmpty()){
+            binding.boxNombre.run {
+                error = "El nombre no puede estar vacío"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        } else {
+            binding.boxNombre.error = null
+        }
+
+
+
+        //eMail validation
+        if (Patterns.EMAIL_ADDRESS.matcher(binding.etcorreo.text.toString()).matches() && binding.etcorreo.text.toString().isNotEmpty()){
+            binding.boxCorreo.error = null
+        } else if (binding.etcorreo.text.isNullOrEmpty()){
+            binding.boxCorreo.run{
+                error = "El correo no puede estar vacío"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        } else {
+            binding.boxCorreo.run{
+                error = "Formato inválido. " +
+                        "Ej: algo.algo@servicio.dominio"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        }
+
+        //Website validation
+        if (Patterns.WEB_URL.matcher(binding.etsitioweb.text.toString()).matches() && binding.etsitioweb.text.toString().isNotEmpty()){
+            binding.boxWeb.error = null
+        } else if (binding.etsitioweb.text.isNullOrEmpty()){
+            binding.boxWeb.run{
+                error = "El sitio web no puede estar vacío"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        } else {
+            binding.boxWeb.run{
+                error = "Formato inválido. " +
+                        "Ej: https://miuv.com/frivera"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        }
+
+        //Phone validation
+        var telephonicnumber = binding.etphone.text.toString().trim()
+        if (Patterns.PHONE.matcher(binding.etphone.text.toString()).matches() && binding.etphone.text.toString().isNotEmpty() && telephonicnumber.length>=7){
+            binding.boxContacto.error = null
+        } else if (binding.etphone.text.isNullOrEmpty()){
+            binding.boxContacto.run{
+                error = "El teléfono no puede estar vacío"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        } else if (telephonicnumber.length<7){
+            binding.boxContacto.run{
+                error = "7 dígitos para telefono fijo. 10 para celular."
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        } else {
+            binding.boxContacto.run{
+                error = "Formato inválido. " +
+                        "Ej: +52 2291590846"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        }
+
+        return ValidationBooleanStatus
+    }
+
+
 }
+
