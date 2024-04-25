@@ -126,7 +126,6 @@
             android:textSize="@dimen/text_size_md"
             android:drawableStart="@drawable/icon_settings"
             />
-
     </LinearLayout>
 
 

@@ -22,10 +22,8 @@ class EditActivity : AppCompatActivity() {
         binding.etcorreo.setText(intent.extras?.getString(getString(R.string.k_email)))
         binding.etsitioweb.setText(intent.extras?.getString(getString(R.string.k_web)))
         binding.etphone.setText(intent.extras?.getString(getString(R.string.k_phone)))
-        binding.etnombre.setText(intent.extras?.getString(getString(R.string.k_lat)))
-        binding.etnombre.setText(intent.extras?.getString(R.string.k_lat).toString())
-        binding.etnombre.setText(intent.extras?.getString(R.string.k_lon).toString())
-
+        binding.etlat.setText(intent.extras?.getString(getString(R.string.k_lat)).toString())
+        binding.etlon.setText(intent.extras?.getString(getString(R.string.k_lon)).toString())
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -35,20 +33,19 @@ class EditActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if(item.itemId == R.id.action_save){
-
+            sendData()
         }
         return super.onOptionsItemSelected(item)
     }
 
     fun sendData() {
         val intent = Intent()
-        intent.putExtra(getString(R.string.k_name),binding.etnombre.text.toString())
-        intent.putExtra(getString(R.string.k_email),binding.etcorreo.toString())
-        intent.putExtra(getString(R.string.k_web),binding.etsitioweb.toString())
-        intent.putExtra(getString(R.string.k_phone),binding.etphone.toString())
-        intent.putExtra(getString(R.string.k_lat),binding.etlat.text.toString())
-        intent.putExtra(getString(R.string.k_lon),binding.etlon.text.toString())
-
+        intent.putExtra(getString(R.string.k_name), binding.etnombre.text.toString())
+        intent.putExtra(getString(R.string.k_email), binding.etcorreo.text.toString())
+        intent.putExtra(getString(R.string.k_web), binding.etsitioweb.text.toString())
+        intent.putExtra(getString(R.string.k_phone), binding.etphone.text.toString())
+        intent.putExtra(getString(R.string.k_lat), binding.etlat.text.toString())
+        intent.putExtra(getString(R.string.k_lon), binding.etlon.text.toString())
         setResult(RESULT_OK,intent)
         finish()
     }
