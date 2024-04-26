@@ -1,31 +1,37 @@
 package com.example.perfil
 
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Patterns
 import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.enableEdgeToEdge
+import android.widget.Button
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.databinding.BindingAdapter
 import com.example.perfil.databinding.ActivityEditBinding
-import com.example.perfil.databinding.ActivityMainBinding
+
 
 class EditActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-       binding = ActivityEditBinding.inflate(layoutInflater)
+        binding = ActivityEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         binding.etnombre.setText(intent.extras?.getString(getString(R.string.k_name)))
         binding.etcorreo.setText(intent.extras?.getString(getString(R.string.k_email)))
         binding.etsitioweb.setText(intent.extras?.getString(getString(R.string.k_web)))
         binding.etphone.setText(intent.extras?.getString(getString(R.string.k_phone)))
         binding.etlat.setText(intent.extras?.getString(getString(R.string.k_lat)).toString())
         binding.etlon.setText(intent.extras?.getString(getString(R.string.k_lon)).toString())
+
+
+        //open fun setImageDrawable(drawable: Drawable?): Unit
+
     }
+
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_edit,menu)
@@ -38,8 +44,15 @@ class EditActivity : AppCompatActivity() {
                 sendData()
             }
         }
+
+        if(item.itemId == R.id.changeavatarbutton) {
+
+        }
+
         return super.onOptionsItemSelected(item)
     }
+
+
 
     fun sendData() {
         val intent = Intent()
@@ -137,6 +150,27 @@ class EditActivity : AppCompatActivity() {
                 requestFocus()
             }
             ValidationBooleanStatus = false
+        }
+
+        //Lat-Lon validation
+        if (binding.etlat.text.toString().isEmpty()){
+            binding.boxLat.run{
+                error = "La latidud no puede estar vacía"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        } else {
+            binding.boxLat.error = null
+        }
+
+        if (binding.etlon.text.toString().isEmpty()){
+            binding.boxLon.run{
+                error = "La longitud no puede estar vacía"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        } else {
+            binding.boxLon.error = null
         }
 
         return ValidationBooleanStatus

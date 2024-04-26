@@ -60,10 +60,10 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_edit) {
             val intent = Intent(this, EditActivity::class.java)
-            intent.putExtra(getString(R.string.k_name), binding.profileTvNombre.text.toString())
-            intent.putExtra(getString(R.string.k_email), binding.profileTvCorreo.text.toString())
-            intent.putExtra(getString(R.string.k_web), binding.profileTvWeb.text.toString())
-            intent.putExtra(getString(R.string.k_phone), binding.profileTvPhone.text.toString())
+            intent.putExtra(getString(R.string.k_name), binding.profileTvNombre.text.toString().trim())
+            intent.putExtra(getString(R.string.k_email), binding.profileTvCorreo.text.toString().trim())
+            intent.putExtra(getString(R.string.k_web), binding.profileTvWeb.text.toString().trim())
+            intent.putExtra(getString(R.string.k_phone), binding.profileTvPhone.text.toString().trim())
             intent.putExtra(getString(R.string.k_lat), lat.toString())
             intent.putExtra(getString(R.string.k_lon), lon.toString())
 
