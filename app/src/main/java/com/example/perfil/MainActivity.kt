@@ -1,10 +1,12 @@
 package com.example.perfil
 
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.perfil.databinding.ActivityMainBinding
@@ -15,6 +17,9 @@ class MainActivity : AppCompatActivity() {
     public var UbicationButtomTest: Int = 0
     private var lat: Double = 0.0
     private var lon: Double = 0.0
+    private lateinit var receiveimage: ImageView
+    private var uriString: String? = null
+    private var uri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +27,6 @@ class MainActivity : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         setContentView(binding.root)
         updateUI()
-
 
             binding.profileMostrar.setOnClickListener {
                 if (UbicationButtomTest==0) {
@@ -34,6 +38,8 @@ class MainActivity : AppCompatActivity() {
                     UbicationButtomTest=0
                 }
             }
+
+        receiveimage = findViewById(R.id.main_profile_picture)
     }
 
     private fun updateUI(
@@ -41,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         correo: String = "frivera@uv.com.mx",
         web: String = "https://miuv.com/frivera",
         phone: String = "+52 2291406365")
+
     {
         binding.profileTvNombre.text = name
         binding.profileTvCorreo.text = correo
@@ -60,6 +67,8 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_edit) {
             val intent = Intent(this, EditActivity::class.java)
+            val uriString = uri.toString()
+            intent.putExtra(getString(R.string.img_to_editactivity), uriString)
             intent.putExtra(getString(R.string.k_name), binding.profileTvNombre.text.toString().trim())
             intent.putExtra(getString(R.string.k_email), binding.profileTvCorreo.text.toString().trim())
             intent.putExtra(getString(R.string.k_web), binding.profileTvWeb.text.toString().trim())
@@ -83,6 +92,12 @@ class MainActivity : AppCompatActivity() {
                 val phone = it.data?.getStringExtra(getString(R.string.k_phone))
                 lat = it.data?.getStringExtra(getString(R.string.k_lat))?.toDouble() ?: 0.0
                 lon = it.data?.getStringExtra(getString(R.string.k_lon))?.toDouble() ?: 0.0
+                uriString = it.data?.getStringExtra(getString(R.string.img_to_mainactivity)) // Get the Uri string
+                if (uriString != null) {
+                    val uri = Uri.parse(uriString)  // Recreate the Uri
+                    receiveimage.setImageURI(uri)
+                    uriString = uri.toString()
+                }
                 updateUI(name!!, correo!!, web!!, phone!!)
             }
         }

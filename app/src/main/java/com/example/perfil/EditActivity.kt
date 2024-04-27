@@ -2,23 +2,38 @@ package com.example.perfil
 
 import android.content.Intent
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import com.example.perfil.databinding.ActivityEditBinding
 
 
 class EditActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditBinding
+    lateinit var changephotobutton: Button
+    lateinit var deletephotobutton: Button
+    lateinit var Imageviewineditactivity: ImageView
+    private var uri: Uri? = null
+    private var uriString: String? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         binding.etnombre.setText(intent.extras?.getString(getString(R.string.k_name)))
         binding.etcorreo.setText(intent.extras?.getString(getString(R.string.k_email)))
         binding.etsitioweb.setText(intent.extras?.getString(getString(R.string.k_web)))
@@ -26,11 +41,30 @@ class EditActivity : AppCompatActivity() {
         binding.etlat.setText(intent.extras?.getString(getString(R.string.k_lat)).toString())
         binding.etlon.setText(intent.extras?.getString(getString(R.string.k_lon)).toString())
 
+        changephotobutton = findViewById(R.id.changephotobutton)
+        deletephotobutton = findViewById(R.id.deletephotobutton)
+        Imageviewineditactivity = findViewById(R.id.edit_profile_picture)
 
-        //open fun setImageDrawable(drawable: Drawable?): Unit
+        changephotobutton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                type = "image/*"
+            }
+            startActivityForResult(intent, 1)
+        }
 
+        uriString = intent.getStringExtra(getString(R.string.img_to_editactivity))
+        if (uriString != null) {
+            uri = Uri.parse(uriString)
+            Imageviewineditactivity.setImageURI(uri)
+        }
     }
-
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1 && data != null) {
+            uri = data.data // Assuming you have a 'uri' property declared
+            Imageviewineditactivity.setImageURI(uri)
+        }
+    }
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -39,16 +73,12 @@ class EditActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId == R.id.action_save){
-            if (DataValidation()==true) {
+        if (item.itemId == R.id.action_save) {
+            /*if (DataValidation()==true) {
                 sendData()
-            }
+            }*/
+            sendData()
         }
-
-        if(item.itemId == R.id.changeavatarbutton) {
-
-        }
-
         return super.onOptionsItemSelected(item)
     }
 
@@ -56,6 +86,7 @@ class EditActivity : AppCompatActivity() {
 
     fun sendData() {
         val intent = Intent()
+        intent.putExtra(getString(R.string.img_to_mainactivity), uri?.toString())
         intent.putExtra(getString(R.string.k_name), binding.etnombre.text.toString())
         intent.putExtra(getString(R.string.k_email), binding.etcorreo.text.toString())
         intent.putExtra(getString(R.string.k_web), binding.etsitioweb.text.toString())
@@ -88,8 +119,6 @@ class EditActivity : AppCompatActivity() {
         } else {
             binding.boxNombre.error = null
         }
-
-
 
         //eMail validation
         if (Patterns.EMAIL_ADDRESS.matcher(binding.etcorreo.text.toString()).matches() && binding.etcorreo.text.toString().isNotEmpty()){
@@ -175,7 +204,6 @@ class EditActivity : AppCompatActivity() {
 
         return ValidationBooleanStatus
     }
-
 
 }
 
