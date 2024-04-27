@@ -1,24 +1,41 @@
 package com.example.perfil
 
 import android.content.Intent
-import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.BindingAdapter
 import com.example.perfil.databinding.ActivityEditBinding
+import java.net.URI
 
 
 class EditActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditBinding
+    public var selectedImageUri: Uri = Uri.EMPTY
+    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri!=null){
+            profileImageSetter.setImageURI(uri)
+            Log.i("aris","Imagen seleccionada")
+            selectedImageUri = uri
+
+        } else Log.i("aris","Imagen no seleccionada")
+    }
+
+    lateinit var btnImage: ImageButton
+    lateinit var profileImageSetter: ImageView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         binding.etnombre.setText(intent.extras?.getString(getString(R.string.k_name)))
         binding.etcorreo.setText(intent.extras?.getString(getString(R.string.k_email)))
         binding.etsitioweb.setText(intent.extras?.getString(getString(R.string.k_web)))
@@ -27,14 +44,20 @@ class EditActivity : AppCompatActivity() {
         binding.etlon.setText(intent.extras?.getString(getString(R.string.k_lon)).toString())
 
 
-        //open fun setImageDrawable(drawable: Drawable?): Unit
+        //btnImage = findViewById(R.id.changeavatarbutton)
+        profileImageSetter = findViewById(R.id.image_setter)
+
+        binding.changeavatarbutton.setOnClickListener{
+            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+
 
     }
 
 
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_edit,menu)
+
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -44,24 +67,21 @@ class EditActivity : AppCompatActivity() {
                 sendData()
             }
         }
-
-        if(item.itemId == R.id.changeavatarbutton) {
-
-        }
-
         return super.onOptionsItemSelected(item)
     }
 
 
 
-    fun sendData() {
+    fun sendData () {
         val intent = Intent()
+        intent.putExtra(getString(R.string.k_photo), selectedImageUri.toString())
         intent.putExtra(getString(R.string.k_name), binding.etnombre.text.toString())
         intent.putExtra(getString(R.string.k_email), binding.etcorreo.text.toString())
         intent.putExtra(getString(R.string.k_web), binding.etsitioweb.text.toString())
         intent.putExtra(getString(R.string.k_phone), binding.etphone.text.toString())
         intent.putExtra(getString(R.string.k_lat), binding.etlat.text.toString())
         intent.putExtra(getString(R.string.k_lon), binding.etlon.text.toString())
+        intent.putExtra("k_photo",binding.imageSetter.toString())
         setResult(RESULT_OK,intent)
         finish()
     }

@@ -16,4 +16,5 @@
     <string name="k_phone">k_phone</string>
     <string name="k_lat">k_lat</string>
     <string name="k_lon">k_lon</string>
+    <string name="k_photo">k_photo</string>
 </resources>
