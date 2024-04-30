@@ -1,22 +1,15 @@
 package com.example.perfil
 
+import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.util.Patterns
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.ImageView
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
-import androidx.databinding.BindingAdapter
 import com.example.perfil.databinding.ActivityEditBinding
 
 
@@ -27,6 +20,7 @@ class EditActivity : AppCompatActivity() {
     lateinit var Imageviewineditactivity: ImageView
     private var uri: Uri? = null
     private var uriString: String? = null
+    private var restoreUri: Uri? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,25 +46,58 @@ class EditActivity : AppCompatActivity() {
             startActivityForResult(intent, 1)
         }
 
+        // Recuperar estado si existe
+        var uri = savedInstanceState?.getParcelable<Uri>("restoreUri")
+        uri?.let {
+            Imageviewineditactivity.setImageURI(it)
+        }
+
+
+
+        /*
         uriString = intent.getStringExtra(getString(R.string.img_to_editactivity))
         if (uriString != null) {
             uri = Uri.parse(uriString)
             Imageviewineditactivity.setImageURI(uri)
         }
+
+         */
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1 && data != null) {
             uri = data.data // Assuming you have a 'uri' property declared
             Imageviewineditactivity.setImageURI(uri)
-        }
+            }
     }
 
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Guardar estado
+            outState.putParcelable("restoreUri", uri)
+
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        // Recuperar estado
+        uri = savedInstanceState.getParcelable<Uri>("restoreUri")
+        if (uri != null) {
+            Imageviewineditactivity.setImageURI(uri)
+        }
+
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_edit,menu)
         return super.onCreateOptionsMenu(menu)
     }
+
+
+
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_save) {
@@ -79,6 +106,7 @@ class EditActivity : AppCompatActivity() {
             }*/
             sendData()
         }
+
         return super.onOptionsItemSelected(item)
     }
 

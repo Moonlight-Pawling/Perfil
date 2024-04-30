@@ -1,13 +1,15 @@
 package com.example.perfil
 
+import android.app.SearchManager
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.perfil.databinding.ActivityMainBinding
 
@@ -28,33 +30,34 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         updateUI()
 
-            binding.profileMostrar.setOnClickListener {
-                if (UbicationButtomTest==0) {
-                    binding.profileMostrar.text = "Lat: $lat, Lon: $lon"
-                    UbicationButtomTest=1
-                }
-                else if (UbicationButtomTest==1) {
-                    binding.profileMostrar.text = "Mostrar mapa"
-                    UbicationButtomTest=0
-                }
-            }
+//            binding.profileMostrar.setOnClickListener {
+//                if (UbicationButtomTest==0) {
+//                    binding.profileMostrar.text = "Lat: $lat, Lon: $lon"
+//                    UbicationButtomTest=1
+//                }
+//                else if (UbicationButtomTest==1) {
+//                    binding.profileMostrar.text = "Mostrar mapa"
+//                    UbicationButtomTest=0
+//                }
+//            }
 
         receiveimage = findViewById(R.id.main_profile_picture)
+        lat = 19.16571861761356
+        lon = -96.11419823223545
+        setupIntent()
     }
 
     private fun updateUI(
-        name: String = "Curso UV",
-        correo: String = "frivera@uv.com.mx",
-        web: String = "https://miuv.com/frivera",
-        phone: String = "+52 2291406365")
+        name: String = "Asking to Stack Overflow",
+        correo: String = "stack@overflow.com",
+        web: String = "https://stackoverflow.com",
+        phone: String = "+01 2345678910")
 
     {
         binding.profileTvNombre.text = name
         binding.profileTvCorreo.text = correo
         binding.profileTvWeb.text = web
         binding.profileTvPhone.text = phone
-        //lat = 19.165493348694696
-        //lon = -96.11419798183913
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -62,6 +65,54 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    private fun setupIntent(){
+        binding.profileTvNombre.setOnClickListener{
+            val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
+                putExtra(SearchManager.QUERY,binding.profileTvNombre.text)
+            }
+            startActivity(intent)
+        }
+
+        //Envio de correo
+        binding.profileTvCorreo.setOnClickListener{
+            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL,binding.profileTvCorreo.text.toString())
+                putExtra(Intent.EXTRA_SUBJECT,"Automatico INTENT")
+                putExtra(Intent.EXTRA_TEXT,"Some text here")
+            }
+            startActivity(intent)
+        }
+
+        //Sitio Web
+        binding.profileTvWeb.setOnClickListener{
+            val webText = Uri.parse(binding.profileTvWeb.text.toString())
+            val intent = Intent(Intent.ACTION_VIEW,webText)
+            startActivity(intent)
+        }
+
+        //Telefono
+        binding.profileTvPhone.setOnClickListener{
+            val intent = Intent(Intent.ACTION_DIAL).apply {
+                val phone = (it as TextView).text
+                data = Uri.parse("tel:$phone")
+            }
+            startActivity(intent)
+        }
+
+        //Mapa
+        binding.profileMostrar.setOnClickListener{
+            // Crea una cadena Uri a partir de una cadena de intención. Usa el resultado para crear una intención.
+            val mapcordinates : String = "$lat,$lon"
+            val gmmIntentUri = Uri.parse("geo:$lat,$lon?q=$mapcordinates?z=17")
+            // Crea una intención a partir de gmmIntentUri. Establece la acción en ACTION_VIEW
+            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            // Haz que la intención sea explícita configurando el paquete de Google Maps
+            mapIntent.setPackage("com.google.android.apps.maps")
+            // Intenta iniciar una actividad que pueda manejar la intención
+            startActivity(mapIntent)
+        }
+    }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
