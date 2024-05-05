@@ -1,16 +1,35 @@
 package com.example.perfil
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.os.PersistableBundle
 import android.util.Patterns
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.net.toUri
 import com.example.perfil.databinding.ActivityEditBinding
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 class EditActivity : AppCompatActivity() {
@@ -18,15 +37,18 @@ class EditActivity : AppCompatActivity() {
     lateinit var changephotobutton: Button
     lateinit var deletephotobutton: Button
     lateinit var Imageviewineditactivity: ImageView
-    private var uri: Uri? = null
-    private var uriString: String? = null
-    private var restoreUri: Uri? = null
-
-
+    private lateinit var imageFile: File
+    private val fileName = "official_profile_image.png"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Imageviewineditactivity = findViewById(R.id.edit_profile_picture)
+
+        val externalStorageDirectory = Environment.getExternalStorageDirectory()
+        val imageDirectory = File(externalStorageDirectory, "Pictures")
+        imageFile = File(imageDirectory, fileName)
+        setImageViewFromLocalFile()
 
         binding.etnombre.setText(intent.extras?.getString(getString(R.string.k_name)))
         binding.etcorreo.setText(intent.extras?.getString(getString(R.string.k_email)))
@@ -37,57 +59,15 @@ class EditActivity : AppCompatActivity() {
 
         changephotobutton = findViewById(R.id.changephotobutton)
         deletephotobutton = findViewById(R.id.deletephotobutton)
-        Imageviewineditactivity = findViewById(R.id.edit_profile_picture)
 
         changephotobutton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "image/*"
-            }
-            startActivityForResult(intent, 1)
+            pickImage()
+            setImageViewFromLocalFile()
         }
 
-        // Recuperar estado si existe
-        var uri = savedInstanceState?.getParcelable<Uri>("restoreUri")
-        uri?.let {
-            Imageviewineditactivity.setImageURI(it)
+        deletephotobutton.setOnClickListener {
+            Imageviewineditactivity.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.img_avatar, null))
         }
-
-
-
-        /*
-        uriString = intent.getStringExtra(getString(R.string.img_to_editactivity))
-        if (uriString != null) {
-            uri = Uri.parse(uriString)
-            Imageviewineditactivity.setImageURI(uri)
-        }
-
-         */
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1 && data != null) {
-            uri = data.data // Assuming you have a 'uri' property declared
-            Imageviewineditactivity.setImageURI(uri)
-            }
-    }
-
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        // Guardar estado
-            outState.putParcelable("restoreUri", uri)
-
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        // Recuperar estado
-        uri = savedInstanceState.getParcelable<Uri>("restoreUri")
-        if (uri != null) {
-            Imageviewineditactivity.setImageURI(uri)
-        }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -95,8 +75,79 @@ class EditActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    private fun checkForExistingImage(fileName: String): Boolean {
+        val externalStorageDirectory = Environment.getExternalStorageDirectory()
+        val imageDirectory = File(externalStorageDirectory, "Pictures")
 
+        val imageFile = File(imageDirectory, fileName)
+        return imageFile.exists()
+    }
+    private fun setImageViewFromLocalFile() { val doesExist = checkForExistingImage(fileName)
+            if (doesExist) {
+                try {
+                    val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+                    Imageviewineditactivity.setImageBitmap(bitmap)
+                } catch (e: FileNotFoundException) {
+                    // Handle the case where the file doesn't exist (e.g., show a toast)
+                    e.printStackTrace()
+                }
+            } else {
+                binding.editProfilePicture.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.img_avatar, null))
+            }
+    }
+    private fun pickImage() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        pickMediaLauncher.launch(intent)
+    }
 
+    private val pickMediaLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            val imageUri = data?.data // Use safe call to handle null data
+            if (imageUri != null) {
+                saveImage(imageUri)
+            } else {
+                // Handle the case where no image was selected (e.g., user canceled)
+            }
+        }
+    }
+
+    private fun saveImage(imageUri: Uri) {
+        try {
+            val inputStream = contentResolver.openInputStream(imageUri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+
+            // Crear un nombre de archivo único para la imagen
+            val fileName = "official_profile_image.png"
+
+            // Obtener la carpeta de almacenamiento de imágenes
+            val externalStorageDirectory = Environment.getExternalStorageDirectory()
+            val imageDirectory = File(externalStorageDirectory, "Pictures")
+            if (!imageDirectory.exists()) {
+                imageDirectory.mkdirs() // Create the directory if it doesn't exist
+            }
+
+            // Crear el archivo de imagen y escribir el bitmap
+            val imageFile = File(imageDirectory, fileName)
+            val outputStream = FileOutputStream(imageFile)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+
+            // Actualizar la galería del dispositivo para mostrar la imagen guardada
+            MediaScannerConnection.scanFile(this, arrayOf(imageFile.absolutePath), null, null)
+
+            // Mostrar un mensaje de éxito
+            Toast.makeText(this, "Imagen guardada con éxito", Toast.LENGTH_SHORT).show()
+        } catch (e: FileNotFoundException) {
+            // Manejar la excepción de archivo no encontrado
+            e.printStackTrace()
+            Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show()
+        } catch (e: IOException) {
+            // Manejar la excepción de E/S
+            e.printStackTrace()
+            Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show()
+        }
+    }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -106,7 +157,6 @@ class EditActivity : AppCompatActivity() {
             }*/
             sendData()
         }
-
         return super.onOptionsItemSelected(item)
     }
 
@@ -114,7 +164,6 @@ class EditActivity : AppCompatActivity() {
 
     fun sendData() {
         val intent = Intent()
-        intent.putExtra(getString(R.string.img_to_mainactivity), uri?.toString())
         intent.putExtra(getString(R.string.k_name), binding.etnombre.text.toString())
         intent.putExtra(getString(R.string.k_email), binding.etcorreo.text.toString())
         intent.putExtra(getString(R.string.k_web), binding.etsitioweb.text.toString())

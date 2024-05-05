@@ -2,8 +2,10 @@ package com.example.perfil
 
 import android.app.SearchManager
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -11,7 +13,10 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.res.ResourcesCompat
 import com.example.perfil.databinding.ActivityMainBinding
+import java.io.File
+import java.io.FileNotFoundException
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,32 +24,46 @@ class MainActivity : AppCompatActivity() {
     public var UbicationButtomTest: Int = 0
     private var lat: Double = 0.0
     private var lon: Double = 0.0
-    private lateinit var receiveimage: ImageView
-    private var uriString: String? = null
-    private var uri: Uri? = null
+    lateinit var Imageviewinmainactivity: ImageView
+    private lateinit var imageFile: File
+    private val fileName = "official_profile_image.png"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         setContentView(binding.root)
+        Imageviewinmainactivity = findViewById(R.id.main_profile_picture)
         updateUI()
-
-//            binding.profileMostrar.setOnClickListener {
-//                if (UbicationButtomTest==0) {
-//                    binding.profileMostrar.text = "Lat: $lat, Lon: $lon"
-//                    UbicationButtomTest=1
-//                }
-//                else if (UbicationButtomTest==1) {
-//                    binding.profileMostrar.text = "Mostrar mapa"
-//                    UbicationButtomTest=0
-//                }
-//            }
-
-        receiveimage = findViewById(R.id.main_profile_picture)
+        val externalStorageDirectory = Environment.getExternalStorageDirectory()
+        val imageDirectory = File(externalStorageDirectory, "Pictures")
+        imageFile = File(imageDirectory, fileName)
+        setImageViewFromLocalFile()
         lat = 19.16571861761356
         lon = -96.11419823223545
         setupIntent()
+    }
+
+    private fun setImageViewFromLocalFile() { val doesExist = checkForExistingImage(fileName)
+        if (doesExist) {
+                try {
+                val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+                Imageviewinmainactivity.setImageBitmap(bitmap)
+            } catch (e: FileNotFoundException) {
+                // Handle the case where the file doesn't exist (e.g., show a toast)
+                e.printStackTrace()
+            }
+        } else {
+            binding.mainProfilePicture.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.img_avatar, null))
+        }
+    }
+
+    private fun checkForExistingImage(fileName: String): Boolean {
+        val externalStorageDirectory = Environment.getExternalStorageDirectory()
+        val imageDirectory = File(externalStorageDirectory, "Pictures")
+
+        val imageFile = File(imageDirectory, fileName)
+        return imageFile.exists()
     }
 
     private fun updateUI(
@@ -115,11 +134,10 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_edit) {
             val intent = Intent(this, EditActivity::class.java)
-            val uriString = uri.toString()
-            intent.putExtra(getString(R.string.img_to_editactivity), uriString)
             intent.putExtra(getString(R.string.k_name), binding.profileTvNombre.text.toString().trim())
             intent.putExtra(getString(R.string.k_email), binding.profileTvCorreo.text.toString().trim())
             intent.putExtra(getString(R.string.k_web), binding.profileTvWeb.text.toString().trim())
@@ -143,12 +161,6 @@ class MainActivity : AppCompatActivity() {
                 val phone = it.data?.getStringExtra(getString(R.string.k_phone))
                 lat = it.data?.getStringExtra(getString(R.string.k_lat))?.toDouble() ?: 0.0
                 lon = it.data?.getStringExtra(getString(R.string.k_lon))?.toDouble() ?: 0.0
-                uriString = it.data?.getStringExtra(getString(R.string.img_to_mainactivity)) // Get the Uri string
-                if (uriString != null) {
-                    val uri = Uri.parse(uriString)  // Recreate the Uri
-                    receiveimage.setImageURI(uri)
-                    uriString = uri.toString()
-                }
                 updateUI(name!!, correo!!, web!!, phone!!)
             }
         }

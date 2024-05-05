@@ -18,4 +18,5 @@
     <string name="k_lon">k_lon</string>
     <string name="img_to_editactivity">img_to_editActivity</string>
     <string name="img_to_mainactivity">img_to_mainActivity</string>
+    <string name="image_uri">image_uri</string>
 </resources>
