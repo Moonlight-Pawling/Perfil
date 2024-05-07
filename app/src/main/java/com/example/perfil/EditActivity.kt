@@ -15,6 +15,7 @@ import android.util.Patterns
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -35,8 +36,8 @@ import java.util.regex.Pattern.matches
 
 class EditActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditBinding
-    lateinit var changephotobutton: Button
-    lateinit var deletephotobutton: Button
+    private lateinit var changephotobutton: ImageButton
+    private lateinit var deletephotobutton: ImageButton
     lateinit var Imageviewineditactivity: ImageView
     private lateinit var imageFile: File
     private val fileName = "official_profile_image.png"
@@ -315,8 +316,7 @@ class EditActivity : AppCompatActivity() {
             ValidationBooleanStatus = false
         }
 
-        //Lat-Lon validation
-
+        //Lat validation
         if (binding.etlat.text.toString().matches(Regex("^(-?[0-9]+)(\\.[0-9]+)\$")) && binding.etlat.text.toString().isNotEmpty() && (binding.etlat.text.toString().toDouble() <= 90 && binding.etlat.text.toString().toDouble() >= -90)){
             binding.boxLat.error = null
         } else if (binding.etlat.text.isNullOrEmpty()){
@@ -340,15 +340,27 @@ class EditActivity : AppCompatActivity() {
         }
 
 
-
-        if (binding.etlon.text.toString().isEmpty()){
+        //Lon validation
+        if (binding.etlon.text.toString().matches(Regex("^(-?[0-9]+)(\\.[0-9]+)\$")) && binding.etlon.text.toString().isNotEmpty() && (binding.etlon.text.toString().toDouble() <= 90 && binding.etlon.text.toString().toDouble() >= -90)){
+            binding.boxLon.error = null
+        } else if (binding.etlon.text.isNullOrEmpty()){
             binding.boxLon.run{
                 error = "La longitud no puede estar vacía"
                 requestFocus()
             }
             ValidationBooleanStatus = false
-        } else {
-            binding.boxLon.error = null
+        } else if (binding.etlon.text.toString().toDouble() > 180 || binding.etlon.text.toString().toDouble() < -180){
+            binding.boxLon.run{
+                error = "La longitud debe estar entre -180° y 180°"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        } else if (!(binding.etlon.text.toString().matches(Regex("^(-?[0-9]+)(\\.[0-9]+)\$")))) {
+            binding.boxLon.run {
+                error = "La longitud debe ser un número con punto decimal"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
         }
 
         return ValidationBooleanStatus

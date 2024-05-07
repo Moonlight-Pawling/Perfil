@@ -32,19 +32,34 @@
                     android:scaleType="centerCrop"
                     tools:src="@drawable/img_avatar" />
 
-                <Button
+                <!--<Button
                     android:id="@+id/changephotobutton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
-                    android:text="Cambiar foto" />
+                    android:text="Cambiar foto" />-->
 
-                <Button
+                <!--<Button
                     android:id="@+id/deletephotobutton"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_gravity="top|right"
-                    android:text="X" />
+                    android:text="X" />-->
+
+                <ImageButton
+                    android:id="@+id/changephotobutton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|left"
+                    app:srcCompat="@drawable/add_photo_icon" />
+
+                <ImageButton
+                    android:id="@+id/deletephotobutton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|right"
+                    app:srcCompat="@drawable/remove_photo_icon" />
+
 
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
