@@ -30,6 +30,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.regex.Pattern.matches
 
 
 class EditActivity : AppCompatActivity() {
@@ -208,10 +209,10 @@ class EditActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_save) {
-            /*if (DataValidation()==true) {
+            if (DataValidation()==true) {
                 sendData()
-            }*/
-            sendData()
+            }
+            //sendData()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -315,15 +316,30 @@ class EditActivity : AppCompatActivity() {
         }
 
         //Lat-Lon validation
-        if (binding.etlat.text.toString().isEmpty()){
+
+        if (binding.etlat.text.toString().matches(Regex("^(-?[0-9]+)(\\.[0-9]+)\$")) && binding.etlat.text.toString().isNotEmpty() && (binding.etlat.text.toString().toDouble() <= 90 && binding.etlat.text.toString().toDouble() >= -90)){
+            binding.boxLat.error = null
+        } else if (binding.etlat.text.isNullOrEmpty()){
             binding.boxLat.run{
-                error = "La latidud no puede estar vacía"
+                error = "La latitud no puede estar vacía"
                 requestFocus()
             }
             ValidationBooleanStatus = false
-        } else {
-            binding.boxLat.error = null
+        } else if (binding.etlat.text.toString().toDouble() > 90 || binding.etlat.text.toString().toDouble() < -90){
+            binding.boxLat.run{
+                error = "La latitud debe estar entre -90 y 90"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
+        } else if (!(binding.etlat.text.toString().matches(Regex("^(-?[0-9]+)(\\.[0-9]+)\$")))) {
+            binding.boxLat.run {
+                error = "La latitud debe ser un número con punto decimal"
+                requestFocus()
+            }
+            ValidationBooleanStatus = false
         }
+
+
 
         if (binding.etlon.text.toString().isEmpty()){
             binding.boxLon.run{
