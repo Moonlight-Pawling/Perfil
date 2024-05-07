@@ -120,6 +120,7 @@
             android:textSize="@dimen/text_size_md"
             android:clickable="true"
             android:drawableEnd="@drawable/icon_map"
+            android:drawablePadding="5dp"
             />
 
         <androidx.appcompat.widget.AppCompatTextView

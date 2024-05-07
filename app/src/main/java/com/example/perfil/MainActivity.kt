@@ -10,13 +10,20 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
 import com.example.perfil.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.FileNotFoundException
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private var lat: Double = 0.0
     private var lon: Double = 0.0
     lateinit var Imageviewinmainactivity: ImageView
+    var mapbuttonclickactionable: Boolean = false
     private lateinit var imageFile: File
     private val fileName = "official_profile_image.png"
 
@@ -84,12 +92,22 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    private fun launchIntent(intent: Intent) {
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Toast.makeText(this,
+                getString(R.string.compatible_app_not_found_text), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
     private fun setupIntent(){
         binding.profileTvNombre.setOnClickListener{
             val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
                 putExtra(SearchManager.QUERY,binding.profileTvNombre.text)
             }
-            startActivity(intent)
+            launchIntent(intent)
         }
 
         //Envio de correo
@@ -100,14 +118,14 @@ class MainActivity : AppCompatActivity() {
                 putExtra(Intent.EXTRA_SUBJECT,"Automatico INTENT")
                 putExtra(Intent.EXTRA_TEXT,"Some text here")
             }
-            startActivity(intent)
+            launchIntent(intent)
         }
 
         //Sitio Web
         binding.profileTvWeb.setOnClickListener{
             val webText = Uri.parse(binding.profileTvWeb.text.toString())
             val intent = Intent(Intent.ACTION_VIEW,webText)
-            startActivity(intent)
+            launchIntent(intent)
         }
 
         //Telefono
@@ -116,25 +134,35 @@ class MainActivity : AppCompatActivity() {
                 val phone = (it as TextView).text
                 data = Uri.parse("tel:$phone")
             }
-            startActivity(intent)
+            launchIntent(intent)
         }
 
         //Mapa
         binding.profileMostrar.setOnClickListener{
-            // Crea una cadena Uri a partir de una cadena de intención. Usa el resultado para crear una intención.
-            val mapcordinates : String = "$lat,$lon"
-            val gmmIntentUri = Uri.parse("geo:$lat,$lon?q=$mapcordinates?z=17")
-            // Crea una intención a partir de gmmIntentUri. Establece la acción en ACTION_VIEW
-            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-            // Haz que la intención sea explícita configurando el paquete de Google Maps
-            mapIntent.setPackage("com.google.android.apps.maps")
-            // Intenta iniciar una actividad que pueda manejar la intención
-            startActivity(mapIntent)
+            if (mapbuttonclickactionable == false) {
+                binding.profileMostrar.text = "Lat: $lat \nLon: $lon"
+                mapbuttonclickactionable = true
+                // Crea una cadena Uri a partir de una cadena de intención. Usa el resultado para crear una intención.
+                val mapcordinates: String = "$lat, $lon"
+                val gmmIntentUri = Uri.parse("geo:$lat,$lon?q=$mapcordinates?z=17")
+                // Crea una intención a partir de gmmIntentUri. Establece la acción en ACTION_VIEW
+                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                // Haz que la intención sea explícita configurando el paquete de Google Maps
+                mapIntent.setPackage("com.google.android.apps.maps")
+
+                // Intenta iniciar una actividad que pueda manejar la intención
+                startActivity(mapIntent)
+            } else if (mapbuttonclickactionable == true) {
+                mapbuttonclickactionable = false
+                binding.profileMostrar.text = "Mostrar Ubicación"
+            }
         }
     }
 
 
-
+    private suspend fun sleeping(millis: Long) {
+            delay(millis)
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_edit) {
             val intent = Intent(this, EditActivity::class.java)
@@ -161,7 +189,9 @@ class MainActivity : AppCompatActivity() {
                 val phone = it.data?.getStringExtra(getString(R.string.k_phone))
                 lat = it.data?.getStringExtra(getString(R.string.k_lat))?.toDouble() ?: 0.0
                 lon = it.data?.getStringExtra(getString(R.string.k_lon))?.toDouble() ?: 0.0
+                setImageViewFromLocalFile()
                 updateUI(name!!, correo!!, web!!, phone!!)
+
             }
         }
 }

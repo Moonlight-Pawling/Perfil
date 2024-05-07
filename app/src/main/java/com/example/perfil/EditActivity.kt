@@ -49,6 +49,7 @@ class EditActivity : AppCompatActivity() {
         val imageDirectory = File(externalStorageDirectory, "Pictures")
         imageFile = File(imageDirectory, fileName)
         setImageViewFromLocalFile()
+        setFocusLats()
 
         binding.etnombre.setText(intent.extras?.getString(getString(R.string.k_name)))
         binding.etcorreo.setText(intent.extras?.getString(getString(R.string.k_email)))
@@ -62,11 +63,62 @@ class EditActivity : AppCompatActivity() {
 
         changephotobutton.setOnClickListener {
             pickImage()
-            setImageViewFromLocalFile()
         }
 
         deletephotobutton.setOnClickListener {
+            removeImage()
             Imageviewineditactivity.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.img_avatar, null))
+        }
+    }
+
+    private fun removeImage(){
+        val externalStorageDirectory = Environment.getExternalStorageDirectory()
+        val imageDirectory = File(externalStorageDirectory, "Pictures")
+        val imageFile = File(imageDirectory, fileName)
+        if (imageFile.exists()) {
+            imageFile.delete()
+            MediaScannerConnection.scanFile(this, arrayOf(imageFile.absolutePath), null, null)
+            Toast.makeText(this, "Imagen eliminada con éxito", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "No hay imagen para eliminar", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setFocusLats() {
+        binding.etnombre.setOnFocusChangeListener { view, isFocused ->
+            if (isFocused) {
+                binding.etnombre.text?.let { binding.etnombre.setSelection(it.length) }
+            }
+        }
+
+        binding.etcorreo.setOnFocusChangeListener { view, isFocused ->
+            if (isFocused) {
+                binding.etcorreo.text?.let { binding.etcorreo.setSelection(it.length) }
+            }
+        }
+
+        binding.etsitioweb.setOnFocusChangeListener { view, isFocused ->
+            if (isFocused) {
+                binding.etsitioweb.text?.let { binding.etsitioweb.setSelection(it.length) }
+            }
+        }
+
+        binding.etphone.setOnFocusChangeListener { view, isFocused ->
+            if (isFocused) {
+                binding.etphone.text?.let { binding.etphone.setSelection(it.length) }
+            }
+        }
+
+        binding.etlat.setOnFocusChangeListener { view, isFocused ->
+            if (isFocused) {
+                binding.etlat.text?.let { binding.etlat.setSelection(it.length) }
+            }
+        }
+
+        binding.etlon.setOnFocusChangeListener { view, isFocused ->
+            if (isFocused) {
+                binding.etlon.text?.let { binding.etlon.setSelection(it.length) }
+            }
         }
     }
 
@@ -115,9 +167,11 @@ class EditActivity : AppCompatActivity() {
 
     private fun saveImage(imageUri: Uri) {
         try {
+
+            // Actualizar la galería del dispositivo para mostrar la imagen guardada
+            MediaScannerConnection.scanFile(this, arrayOf(imageFile.absolutePath), null, null)
             val inputStream = contentResolver.openInputStream(imageUri)
             val bitmap = BitmapFactory.decodeStream(inputStream)
-
             // Crear un nombre de archivo único para la imagen
             val fileName = "official_profile_image.png"
 
@@ -136,6 +190,7 @@ class EditActivity : AppCompatActivity() {
             // Actualizar la galería del dispositivo para mostrar la imagen guardada
             MediaScannerConnection.scanFile(this, arrayOf(imageFile.absolutePath), null, null)
 
+
             // Mostrar un mensaje de éxito
             Toast.makeText(this, "Imagen guardada con éxito", Toast.LENGTH_SHORT).show()
         } catch (e: FileNotFoundException) {
@@ -147,6 +202,7 @@ class EditActivity : AppCompatActivity() {
             e.printStackTrace()
             Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show()
         }
+        setImageViewFromLocalFile()
     }
 
 
