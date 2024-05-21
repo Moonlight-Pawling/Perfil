@@ -65,6 +65,11 @@ class EditActivity : AppCompatActivity() {
 
         changephotobutton.setOnClickListener {
             pickImage()
+            /*val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply{
+            addcategory(Intent.category_openable)
+            type = "image/jpeg"
+            }
+            startActivityForResult(intent, 72)*/
         }
 
         deletephotobutton.setOnClickListener {

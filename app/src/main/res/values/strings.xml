@@ -20,4 +20,5 @@
     <string name="img_to_mainactivity">img_to_mainActivity</string>
     <string name="image_uri">image_uri</string>
     <string name="compatible_app_not_found_text">No se encontró aplicación compatible</string>
+    <string name="txt_config">Configuraciones</string>
 </resources>

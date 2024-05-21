@@ -3,7 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_edit"
         android:title="@string/mm_modificar_info"
-        app:showAsAction="never">
+        app:showAsAction="never"
+        android:orderInCategory="2">
 
     </item>
+    <item android:id="@+id/action_config"
+        android:title="@string/txt_config"
+        app:showAsAction="never"
+        android:orderInCategory="1"
+        />
 </menu>

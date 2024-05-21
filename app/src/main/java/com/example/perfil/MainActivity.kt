@@ -2,10 +2,13 @@ package com.example.perfil
 
 import android.app.SearchManager
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.preference.PreferenceManager
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -28,11 +31,12 @@ import java.util.concurrent.TimeUnit
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var sharedPreferences: SharedPreferences
     public var UbicationButtomTest: Int = 0
     private var lat: Double = 0.0
     private var lon: Double = 0.0
-    lateinit var Imageviewinmainactivity: ImageView
-    var mapbuttonclickactionable: Boolean = false
+    private lateinit var Imageviewinmainactivity: ImageView
+    private var mapbuttonclickactionable: Boolean = false
     private lateinit var imageFile: File
     private val fileName = "official_profile_image.png"
 
@@ -41,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         setContentView(binding.root)
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         Imageviewinmainactivity = findViewById(R.id.main_profile_picture)
         updateUI()
         val externalStorageDirectory = Environment.getExternalStorageDirectory()
@@ -50,6 +55,11 @@ class MainActivity : AppCompatActivity() {
         lat = 19.16571861761356
         lon = -96.11419823223545
         setupIntent()
+        getUserData()
+    }
+
+    private fun getUserData () {
+
     }
 
     private fun setImageViewFromLocalFile() { val doesExist = checkForExistingImage(fileName)
@@ -157,26 +167,48 @@ class MainActivity : AppCompatActivity() {
                 binding.profileMostrar.text = "Mostrar Ubicación"
             }
         }
-    }
 
-
-    private suspend fun sleeping(millis: Long) {
-            delay(millis)
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_edit) {
-            val intent = Intent(this, EditActivity::class.java)
-            intent.putExtra(getString(R.string.k_name), binding.profileTvNombre.text.toString().trim())
-            intent.putExtra(getString(R.string.k_email), binding.profileTvCorreo.text.toString().trim())
-            intent.putExtra(getString(R.string.k_web), binding.profileTvWeb.text.toString().trim())
-            intent.putExtra(getString(R.string.k_phone), binding.profileTvPhone.text.toString().trim())
-            intent.putExtra(getString(R.string.k_lat), lat.toString())
-            intent.putExtra(getString(R.string.k_lon), lon.toString())
-
-            //startActivity(Intent) <-Solo lanza una vista
-            //startActivity(intent) //<- Lanza y espera una respuesta
-            editResult.launch(intent)
+        //Abrir config location
+        binding.profileAjustes.setOnClickListener{
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            launchIntent(intent)
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_edit -> {
+                val intent = Intent(this, EditActivity::class.java)
+                intent.putExtra(
+                    getString(R.string.k_name),
+                    binding.profileTvNombre.text.toString().trim()
+                )
+                intent.putExtra(
+                    getString(R.string.k_email),
+                    binding.profileTvCorreo.text.toString().trim()
+                )
+                intent.putExtra(
+                    getString(R.string.k_web),
+                    binding.profileTvWeb.text.toString().trim()
+                )
+                intent.putExtra(
+                    getString(R.string.k_phone),
+                    binding.profileTvPhone.text.toString().trim()
+                )
+                intent.putExtra(getString(R.string.k_lat), lat.toString())
+                intent.putExtra(getString(R.string.k_lon), lon.toString())
+
+                //startActivity(Intent) <-Solo lanza una vista
+                //startActivity(intent) //<- Lanza y espera una respuesta
+                editResult.launch(intent)
+            }
+
+            R.id.action_config -> {
+                startActivity(intent:)
+
+            }
+        }
+
         return super.onOptionsItemSelected(item)
     }
 

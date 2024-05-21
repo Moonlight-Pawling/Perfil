@@ -4,22 +4,23 @@
 
     <queries>
         <intent>
-            <action android:name="android.intent.action.DIAL"/>
+            <action android:name="android.intent.action.DIAL" />
         </intent>
-
         <intent>
-            <action android:name="android.intent.action.VIEW"/>
-            <data android:scheme="https"/>
+            <action android:name="android.intent.action.VIEW" />
+
+            <data android:scheme="https" />
+
             <category android:name="android.intent.category.BROWSABLE" />
         </intent>
-
         <intent>
-            <action android:name="android.intent.action.SENDTO"/>
-            <data android:scheme="*"/>
-        </intent>
-        <package android:name="com.google.android.app.maps"/>
+            <action android:name="android.intent.action.SENDTO" />
 
-        </queries>
+            <data android:scheme="*" />
+        </intent>
+
+        <package android:name="com.google.android.app.maps" />
+    </queries>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -34,9 +35,13 @@
         android:theme="@style/Theme.Perfil"
         tools:targetApi="31">
         <activity
-            android:name=".EditActivity"
-            android:label="@string/mm_modificar_info"
+            android:name=".SettingsActivity"
+            android:label="@string/txt_config"
             android:exported="false" />
+        <activity
+            android:name=".EditActivity"
+            android:exported="false"
+            android:label="@string/mm_modificar_info" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
