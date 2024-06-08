@@ -58,13 +58,14 @@ class MainActivity : AppCompatActivity() {
         getUserData()
     }
 
-    private fun getUserData () {
+    private fun getUserData() {
 
     }
 
-    private fun setImageViewFromLocalFile() { val doesExist = checkForExistingImage(fileName)
+    private fun setImageViewFromLocalFile() {
+        val doesExist = checkForExistingImage(fileName)
         if (doesExist) {
-                try {
+            try {
                 val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
                 Imageviewinmainactivity.setImageBitmap(bitmap)
             } catch (e: FileNotFoundException) {
@@ -72,7 +73,13 @@ class MainActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         } else {
-            binding.mainProfilePicture.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.img_avatar, null))
+            binding.mainProfilePicture.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.img_avatar,
+                    null
+                )
+            )
         }
     }
 
@@ -88,9 +95,8 @@ class MainActivity : AppCompatActivity() {
         name: String = "Asking to Stack Overflow",
         correo: String = "stack@overflow.com",
         web: String = "https://stackoverflow.com",
-        phone: String = "+01 2345678910")
-
-    {
+        phone: String = "+01 2345678910"
+    ) {
         binding.profileTvNombre.text = name
         binding.profileTvCorreo.text = correo
         binding.profileTvWeb.text = web
@@ -98,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main,menu)
+        menuInflater.inflate(R.menu.menu_main, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -106,40 +112,42 @@ class MainActivity : AppCompatActivity() {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            Toast.makeText(this,
-                getString(R.string.compatible_app_not_found_text), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                getString(R.string.compatible_app_not_found_text), Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
 
-    private fun setupIntent(){
-        binding.profileTvNombre.setOnClickListener{
+    private fun setupIntent() {
+        binding.profileTvNombre.setOnClickListener {
             val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
-                putExtra(SearchManager.QUERY,binding.profileTvNombre.text)
+                putExtra(SearchManager.QUERY, binding.profileTvNombre.text)
             }
             launchIntent(intent)
         }
 
         //Envio de correo
-        binding.profileTvCorreo.setOnClickListener{
+        binding.profileTvCorreo.setOnClickListener {
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:")
-                putExtra(Intent.EXTRA_EMAIL,binding.profileTvCorreo.text.toString())
-                putExtra(Intent.EXTRA_SUBJECT,"Automatico INTENT")
-                putExtra(Intent.EXTRA_TEXT,"Some text here")
+                putExtra(Intent.EXTRA_EMAIL, binding.profileTvCorreo.text.toString())
+                putExtra(Intent.EXTRA_SUBJECT, "Automatico INTENT")
+                putExtra(Intent.EXTRA_TEXT, "Some text here")
             }
             launchIntent(intent)
         }
 
         //Sitio Web
-        binding.profileTvWeb.setOnClickListener{
+        binding.profileTvWeb.setOnClickListener {
             val webText = Uri.parse(binding.profileTvWeb.text.toString())
-            val intent = Intent(Intent.ACTION_VIEW,webText)
+            val intent = Intent(Intent.ACTION_VIEW, webText)
             launchIntent(intent)
         }
 
         //Telefono
-        binding.profileTvPhone.setOnClickListener{
+        binding.profileTvPhone.setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL).apply {
                 val phone = (it as TextView).text
                 data = Uri.parse("tel:$phone")
@@ -148,7 +156,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         //Mapa
-        binding.profileMostrar.setOnClickListener{
+        binding.profileMostrar.setOnClickListener {
             if (mapbuttonclickactionable == false) {
                 binding.profileMostrar.text = "Lat: $lat \nLon: $lon"
                 mapbuttonclickactionable = true
@@ -169,7 +177,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         //Abrir config location
-        binding.profileAjustes.setOnClickListener{
+        binding.profileAjustes.setOnClickListener {
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             launchIntent(intent)
         }
@@ -204,7 +212,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.action_config -> {
-                startActivity(intent:)
+                //startActivity(intent:)
 
             }
         }

@@ -21,11 +21,11 @@ class SettingsActivity : AppCompatActivity() {
         //Añadimos el fragmento a la actividad
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.main_container,SettingsFragment())
+            .replace(R.id.main_container, SettingsFragment())
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId == android.R.id.home){
+        if (item.itemId == android.R.id.home) {
             onBackPressedDispatcher.onBackPressed()
         }
         return super.onOptionsItemSelected(item)
