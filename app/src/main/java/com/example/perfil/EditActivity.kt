@@ -3,6 +3,7 @@ package com.example.perfil
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -26,6 +27,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
+import androidx.preference.PreferenceManager
 import com.example.perfil.databinding.ActivityEditBinding
 import java.io.File
 import java.io.FileNotFoundException
@@ -41,24 +43,36 @@ class EditActivity : AppCompatActivity() {
     lateinit var Imageviewineditactivity: ImageView
     private lateinit var imageFile: File
     private val fileName = "official_profile_image.png"
+    private lateinit var sharedPreferences: SharedPreferences
+    val defaultname = "Asking to Stack Overflow"
+    val defaultcorreo = "stack@overflow.com"
+    val defaultweb = "https://stackoverflow.com"
+    val defaultphone = "+01 2345678910"
+    val defaultlat = 19.16571861761356
+    val defaultlon = -96.11419823223545
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Imageviewineditactivity = findViewById(R.id.edit_profile_picture)
 
-        val externalStorageDirectory = Environment.getExternalStorageDirectory()
-        val imageDirectory = File(externalStorageDirectory, "Pictures")
+        val storageDirectory = filesDir
+        val imageDirectory = File(storageDirectory, getString(R.string.profile_picture_path))
+
         imageFile = File(imageDirectory, fileName)
         setImageViewFromLocalFile()
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
         setFocusLats()
 
-        binding.etnombre.setText(intent.extras?.getString(getString(R.string.k_name)))
-        binding.etcorreo.setText(intent.extras?.getString(getString(R.string.k_email)))
-        binding.etsitioweb.setText(intent.extras?.getString(getString(R.string.k_web)))
-        binding.etphone.setText(intent.extras?.getString(getString(R.string.k_phone)))
-        binding.etlat.setText(intent.extras?.getString(getString(R.string.k_lat)).toString())
-        binding.etlon.setText(intent.extras?.getString(getString(R.string.k_lon)).toString())
+
+        binding.etnombre.setText(sharedPreferences.getString(getString(R.string.k_name), defaultname))
+        binding.etcorreo.setText(sharedPreferences.getString(getString(R.string.k_email), defaultcorreo))
+        binding.etsitioweb.setText(sharedPreferences.getString(getString(R.string.k_web), defaultweb))
+        binding.etphone.setText(sharedPreferences.getString(getString(R.string.k_phone), defaultphone))
+        binding.etlat.setText(sharedPreferences.getString(getString(R.string.k_lat), defaultlat.toString()))
+        binding.etlon.setText(sharedPreferences.getString(getString(R.string.k_lon), defaultlon.toString()))
 
         changephotobutton = findViewById(R.id.changephotobutton)
         deletephotobutton = findViewById(R.id.deletephotobutton)
@@ -79,9 +93,10 @@ class EditActivity : AppCompatActivity() {
     }
 
     private fun removeImage(){
-        val externalStorageDirectory = Environment.getExternalStorageDirectory()
-        val imageDirectory = File(externalStorageDirectory, "Pictures")
+        val storageDirectory = filesDir
+        val imageDirectory = File(storageDirectory, getString(R.string.profile_picture_path))
         val imageFile = File(imageDirectory, fileName)
+
         if (imageFile.exists()) {
             imageFile.delete()
             MediaScannerConnection.scanFile(this, arrayOf(imageFile.absolutePath), null, null)
@@ -135,8 +150,8 @@ class EditActivity : AppCompatActivity() {
     }
 
     private fun checkForExistingImage(fileName: String): Boolean {
-        val externalStorageDirectory = Environment.getExternalStorageDirectory()
-        val imageDirectory = File(externalStorageDirectory, "Pictures")
+        val storageDirectory = filesDir
+        val imageDirectory = File(storageDirectory, getString(R.string.profile_picture_path))
 
         val imageFile = File(imageDirectory, fileName)
         return imageFile.exists()
@@ -183,8 +198,8 @@ class EditActivity : AppCompatActivity() {
             val fileName = "official_profile_image.png"
 
             // Obtener la carpeta de almacenamiento de imágenes
-            val externalStorageDirectory = Environment.getExternalStorageDirectory()
-            val imageDirectory = File(externalStorageDirectory, "Pictures")
+            val storageDirectory = filesDir
+            val imageDirectory = File(storageDirectory, getString(R.string.profile_picture_path))
             if (!imageDirectory.exists()) {
                 imageDirectory.mkdirs() // Create the directory if it doesn't exist
             }
@@ -216,6 +231,7 @@ class EditActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_save) {
             if (DataValidation()==true) {
+                saveSharedPref()
                 sendData()
             }
             //sendData()
@@ -224,15 +240,26 @@ class EditActivity : AppCompatActivity() {
     }
 
 
-
+    fun saveSharedPref(){
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        with (sharedPreferences.edit()) {
+            putString(getString(R.string.k_name), binding.etnombre.text.toString())
+            putString(getString(R.string.k_email), binding.etcorreo.text.toString())
+            putString(getString(R.string.k_web), binding.etsitioweb.text.toString())
+            putString(getString(R.string.k_phone), binding.etphone.text.toString())
+            putString(getString(R.string.k_lat), binding.etlat.text.toString())
+            putString(getString(R.string.k_lon), binding.etlon.text.toString())
+            apply()
+        }
+    }
     fun sendData() {
         val intent = Intent()
-        intent.putExtra(getString(R.string.k_name), binding.etnombre.text.toString())
+        /*intent.putExtra(getString(R.string.k_name), binding.etnombre.text.toString())
         intent.putExtra(getString(R.string.k_email), binding.etcorreo.text.toString())
         intent.putExtra(getString(R.string.k_web), binding.etsitioweb.text.toString())
         intent.putExtra(getString(R.string.k_phone), binding.etphone.text.toString())
         intent.putExtra(getString(R.string.k_lat), binding.etlat.text.toString())
-        intent.putExtra(getString(R.string.k_lon), binding.etlon.text.toString())
+        intent.putExtra(getString(R.string.k_lon), binding.etlon.text.toString())*/
         setResult(RESULT_OK,intent)
         finish()
     }

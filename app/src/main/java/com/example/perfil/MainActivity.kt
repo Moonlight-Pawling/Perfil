@@ -18,6 +18,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
+import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.perfil.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,33 +34,41 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sharedPreferences: SharedPreferences
     public var UbicationButtomTest: Int = 0
-    private var lat: Double = 0.0
-    private var lon: Double = 0.0
+    /*private var lat: Double = 0.0
+    private var lon: Double = 0.0*/
     private lateinit var Imageviewinmainactivity: ImageView
     private var mapbuttonclickactionable: Boolean = false
     private lateinit var imageFile: File
     private val fileName = "official_profile_image.png"
+    var defaultname = "Asking to Stack Overflow"
+    var defaultcorreo = "stack@overflow.com"
+    var defaultweb = "https://stackoverflow.com"
+    var defaultphone = "+01 2345678910"
+    var defaultlat : Double = 19.16571861761356
+    var defaultlon : Double = -96.11419823223545
+    val sharedPrefLat : Double = 0.0
+    val sharedPrefLon : Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         setContentView(binding.root)
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        sharedPreferences = getDefaultSharedPreferences(this)
+        getSharedPref()
         Imageviewinmainactivity = findViewById(R.id.main_profile_picture)
-        updateUI()
-        val externalStorageDirectory = Environment.getExternalStorageDirectory()
-        val imageDirectory = File(externalStorageDirectory, "Pictures")
+        //updateUI()
+        val storageDirectory = filesDir
+        val imageDirectory = File(storageDirectory, getString(R.string.profile_picture_path))
         imageFile = File(imageDirectory, fileName)
         setImageViewFromLocalFile()
-        lat = 19.16571861761356
-        lon = -96.11419823223545
+        //lat = 19.16571861761356
+        //lon = -96.11419823223545
         setupIntent()
         getUserData()
     }
 
     private fun getUserData() {
-
     }
 
     private fun setImageViewFromLocalFile() {
@@ -84,11 +93,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForExistingImage(fileName: String): Boolean {
-        val externalStorageDirectory = Environment.getExternalStorageDirectory()
-        val imageDirectory = File(externalStorageDirectory, "Pictures")
-
+        val storageDirectory = filesDir
+        val imageDirectory = File(storageDirectory, getString(R.string.profile_picture_path))
         val imageFile = File(imageDirectory, fileName)
         return imageFile.exists()
+    }
+
+    fun getSharedPref() {
+        val sharedPreferences = getDefaultSharedPreferences(this)
+
+        val sharedPrefName = sharedPreferences.getString(getString(R.string.k_name), defaultname)
+        val sharedPrefCorreo = sharedPreferences.getString(getString(R.string.k_email), defaultcorreo)
+        val sharedPrefWeb = sharedPreferences.getString(getString(R.string.k_web), defaultweb)
+        val sharedPrefPhone = sharedPreferences.getString(getString(R.string.k_phone), defaultphone)
+        val sharedPrefLat = sharedPreferences.getString(getString(R.string.k_lat), defaultlat.toString())
+        val sharedPrefLon = sharedPreferences.getString(getString(R.string.k_lon), defaultlon.toString())
+
+        updateUI(sharedPrefName!!, sharedPrefCorreo!!, sharedPrefWeb!!, sharedPrefPhone!!)
     }
 
     private fun updateUI(
@@ -158,11 +179,13 @@ class MainActivity : AppCompatActivity() {
         //Mapa
         binding.profileMostrar.setOnClickListener {
             if (mapbuttonclickactionable == false) {
-                binding.profileMostrar.text = "Lat: $lat \nLon: $lon"
+                val sharedPrefLat = sharedPreferences.getString(getString(R.string.k_lat), defaultlat.toString())
+                val sharedPrefLon = sharedPreferences.getString(getString(R.string.k_lon), defaultlon.toString())
+                binding.profileMostrar.text = "Lat: $sharedPrefLat \nLon: $sharedPrefLon"
                 mapbuttonclickactionable = true
                 // Crea una cadena Uri a partir de una cadena de intención. Usa el resultado para crear una intención.
-                val mapcordinates: String = "$lat, $lon"
-                val gmmIntentUri = Uri.parse("geo:$lat,$lon?q=$mapcordinates?z=17")
+                val mapcordinates: String = "$sharedPrefLat, $sharedPrefLon"
+                val gmmIntentUri = Uri.parse("geo:$sharedPrefLat,$sharedPrefLon?q=$mapcordinates?z=17")
                 // Crea una intención a partir de gmmIntentUri. Establece la acción en ACTION_VIEW
                 val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
                 // Haz que la intención sea explícita configurando el paquete de Google Maps
@@ -187,7 +210,8 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_edit -> {
                 val intent = Intent(this, EditActivity::class.java)
-                intent.putExtra(
+                editResult.launch(intent)
+                /*intent.putExtra(
                     getString(R.string.k_name),
                     binding.profileTvNombre.text.toString().trim()
                 )
@@ -207,13 +231,17 @@ class MainActivity : AppCompatActivity() {
                 intent.putExtra(getString(R.string.k_lon), lon.toString())
 
                 //startActivity(Intent) <-Solo lanza una vista
-                //startActivity(intent) //<- Lanza y espera una respuesta
-                editResult.launch(intent)
+                //startActivity(intent) //<- Lanza y espera una respuesta*/
+
             }
 
-            R.id.action_config -> {
-                //startActivity(intent:)
-
+            R.id.action_delete -> {
+                sharedPreferences.edit().clear().apply()
+                getSharedPref()
+                val sharedPrefLat = sharedPreferences.getString(getString(R.string.k_lat), defaultlat.toString())
+                val sharedPrefLon = sharedPreferences.getString(getString(R.string.k_lon), defaultlon.toString())
+                //mapbuttonclickactionable = false
+                binding.profileMostrar.text = "Lat: $sharedPrefLat \nLon: $sharedPrefLon"
             }
         }
 
@@ -223,15 +251,16 @@ class MainActivity : AppCompatActivity() {
     private val editResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
-                val name = it.data?.getStringExtra(getString(R.string.k_name))
+                /*val name = it.data?.getStringExtra(getString(R.string.k_name))
                 val correo = it.data?.getStringExtra(getString(R.string.k_email))
                 val web = it.data?.getStringExtra(getString(R.string.k_web))
                 val phone = it.data?.getStringExtra(getString(R.string.k_phone))
                 lat = it.data?.getStringExtra(getString(R.string.k_lat))?.toDouble() ?: 0.0
-                lon = it.data?.getStringExtra(getString(R.string.k_lon))?.toDouble() ?: 0.0
+                lon = it.data?.getStringExtra(getString(R.string.k_lon))?.toDouble() ?: 0.0*/
                 setImageViewFromLocalFile()
-                updateUI(name!!, correo!!, web!!, phone!!)
-
+                getSharedPref()
+                mapbuttonclickactionable = false
+                binding.profileMostrar.text = "Mostrar Ubicación"
             }
         }
 }

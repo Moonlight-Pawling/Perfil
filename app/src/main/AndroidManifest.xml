@@ -20,11 +20,13 @@
         </intent>
 
         <package android:name="com.google.android.app.maps" />
+        <package android:name="com.google.android.apps.wellbeing" />
     </queries>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
